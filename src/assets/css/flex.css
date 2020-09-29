@@ -1,0 +1,6 @@
+.flex-simple{
+    display: flex;
+}
+.flex-column{
+    flex-flow : nowrap column;
+}
