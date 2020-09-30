@@ -1,5 +1,5 @@
 <template>
-        <el-dialog title="收货地址" :visible="dialogFormVisible" @close="close">
+        <el-dialog title="收货地址" :visible.sync="dialogFormVisible" @close="close">
             <el-form :model="form">
                 <el-form-item label="活动名称" :label-width="formLabelWidth">
                     <el-input v-model="form.name" autocomplete="off"></el-input>
@@ -41,7 +41,7 @@
                     address: '上海市普陀区金沙江路 1518 弄'
                 }],
                 dialogTableVisible : false,
-                // dialogFormVisible : this.visible,
+                dialogFormVisible : false,
                 form: {
                     name: '',
                     region: '',
@@ -61,10 +61,17 @@
                 default : {},
             }
         },
-        computed : {
-            dialogFormVisible(){
-                console.log("子组件");
-                return this.dialogStatus.show;
+        watch : {
+            "dialogStatus.show" : {
+              handler(newVal,oldVal){
+                if(typeof newVal==="boolean"){
+                  console.log("弹出层子组件监听到数据变动");
+                  console.log(newVal);
+                  this.dialogFormVisible = newVal;
+                }
+              },
+              immediate: true,
+              //deep: true
             }
         },
         methods : {

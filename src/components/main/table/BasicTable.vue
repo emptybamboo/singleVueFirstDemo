@@ -73,37 +73,25 @@
                 default : {},
             }
         },
-        computed : {
-            // tableData(){
-            //     console.log("computed--->");
-            //     console.log(this.tableDataArr);
-            //     console.log("computed--->数据类型");
-            //     console.log(typeof this.tableDataArr);
-            //     console.log("computed.list--->数据类型");
-            //     console.log(typeof this.tableDataArr.list);
-            //     console.log("computed.list数据");
-            //     console.log(this.tableDataArr.list);
-            //     console.log(this.tableDataArr.list[0]);
-            //     console.log(this.tableDataArr.list[0].name);
-            //     return this.tableDataArr.list;
-            // }
-        },
         watch:{
-            tableDataArr(newVal,oldVal){
-                        if(newVal){
-                            console.log('我接收到了！');
-                            //执行。。。。。。
-                            this.tableData = newVal.list;
-                        }
-                    }
-                },
+          "tableDataArr.list" : {
+            handler(newVal,oldVal){
+              if(newVal){
+                console.log('我接收到了表格数据！');
+                this.tableData = newVal;
+              }
+            },
+            immediate: true,
+          },
+          },
+
         methods: {
             handleEdit(index, row) {
-                console.log(index, row);
+                // console.log(index, row);
                 this.$emit("table-edit",index,row);
             },
             handleDelete(index, row) {
-                console.log(index, row);
+                // console.log(index, row);
                 this.$emit("table-delete",index,row);
             },
             handleSelectionChange(val) {

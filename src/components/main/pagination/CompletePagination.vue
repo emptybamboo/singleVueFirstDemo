@@ -3,11 +3,11 @@
         <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page="currentPage4"
-                :page-sizes="[100, 200, 300, 400]"
-                :page-size="100"
+                :current-page="currentPage"
+                :page-sizes="pageSizeArr"
+                :page-size="pageSize"
                 layout="total, sizes, prev, pager, next, jumper"
-                :total="400">
+                :total="total">
         </el-pagination>
     </div>
 </template>
@@ -18,18 +18,60 @@
         methods: {
             handleSizeChange(val) {
                 console.log(`每页 ${val} 条`);
+              this.$emit("change-page-size",val);//传递到父组件的方法中
             },
             handleCurrentChange(val) {
                 console.log(`当前页: ${val}`);
+                this.$emit("change-current-page",val);//传递到父组件的方法中
             }
         },
         data() {
             return {
-                currentPage1: 5,
-                currentPage2: 5,
-                currentPage3: 5,
-                currentPage4: 4
+                currentPage: 1,
+                total : 1,
+                pageSize : 10,
+                pageSizeArr : [],
             };
+        },
+        props : {
+            paginationData : {
+              type : Object,
+              default : {},
+            }
+        },
+        watch : {
+            "paginationData.totalNum" : {
+              handler(newVal,oldVal){
+                if(typeof newVal==="number"){
+                  this.total = newVal;
+                }
+              },
+              immediate: true,
+            },
+          "paginationData.pageSize" : {
+            handler(newVal,oldVal){
+              if(typeof newVal==="number"){
+                this.pageSize = newVal;
+              }
+            },
+            immediate: true,
+          },
+          "paginationData.pageSizeArr" : {
+            handler(newVal,oldVal){
+              if(newVal){
+                this.pageSizeArr = newVal;
+              }
+            },
+            immediate: true,
+          },
+          "paginationData.currentPage" : {
+            handler(newVal,oldVal){
+              if(typeof newVal==="number"){
+                this.currentPage = newVal;
+              }
+            },
+            immediate: true,
+          },
         }
     }
 </script>
