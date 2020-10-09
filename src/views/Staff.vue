@@ -8,7 +8,54 @@
                 @table-edit="tableEdit"
                 @table-delete="tableDelete"
                 :table-data-arr="currentPageTableData"
-        ></basic-table>
+        >
+                  <!--通过slot插入到表格组件的部分-->
+                  <el-table-column
+                      type="selection"
+                      width="55">
+                  </el-table-column>
+                  <el-table-column
+                          label="日期"
+                          >
+                      <template slot-scope="scope">
+                          <i class="el-icon-time"></i>
+                          <span style="margin-left: 10px">{{ scope.row.time }}</span>
+                      </template>
+                  </el-table-column>
+                  <el-table-column
+                          label="姓名"
+                          >
+                      <template slot-scope="scope">
+                          <el-popover trigger="hover" placement="top">
+                              <p>姓名: {{ scope.row.name }}</p>
+                              <div slot="reference" class="name-wrapper">
+                                  <el-tag size="medium">{{ scope.row.name }}</el-tag>
+                              </div>
+                          </el-popover>
+                      </template>
+                  </el-table-column>
+                  <el-table-column
+                      label="年龄"
+                      >
+                    <template slot-scope="scope">
+                        <p>{{ scope.row.age }}</p>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                      label="性别"
+                      >
+                    <template slot-scope="scope">
+                      <p>{{ scope.row.gender===false?"男":"女" }}</p>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                      label="手机号代码"
+                      >
+                    <template slot-scope="scope">
+                      <p>{{ scope.row.phone }}</p>
+                    </template>
+                  </el-table-column>
+        </basic-table>
         <complete-pagination
         :pagination-data="paginationData"
         @change-current-page="changeCurrentPage"
@@ -17,7 +64,33 @@
         <form-dialog :dialog-status="dialogStatus"
         @close-dialog="cancelDialog"
         @commit-dialog="commitDialog"
-        ></form-dialog>
+        :form-title="formTitle"
+        >
+          <!--使用slot插入弹出层的表单-->
+          <el-form :model="form"  :label-position="labelPosition" ref="staffForm">
+            <el-form-item label="日期" :label-width="formLabelWidth">
+              <el-date-picker
+                  v-model="form.time"
+                  type="date"
+                  style="width: 100%"
+                  placeholder="选择日期">
+              </el-date-picker>
+            </el-form-item>
+            <el-form-item label="姓名" :label-width="formLabelWidth">
+              <el-input v-model="form.name" clearable></el-input>
+            </el-form-item>
+            <el-form-item label="年龄" :label-width="formLabelWidth">
+              <el-input v-model="form.age" clearable></el-input>
+            </el-form-item>
+            <el-form-item label="性别" :label-width="formLabelWidth">
+              <el-radio v-model="form.gender" :label="false">男</el-radio>
+              <el-radio v-model="form.gender" :label="true">女</el-radio>
+            </el-form-item>
+            <el-form-item label="手机号" :label-width="formLabelWidth">
+              <el-input v-model="form.phone" clearable></el-input>
+            </el-form-item>
+          </el-form>
+        </form-dialog>
     </div>
 </template>
 
@@ -40,7 +113,18 @@
                   currentPage : 1,//当前页码
                   pageSizeArr : [10, 20, 30, 40],//所有可选一页多少条数据的选项
                   pageSize : 10,//当前一页显示几条数据
-                }
+                },
+                //新增编辑弹窗属性
+                form: {
+                  name: '',
+                  age: '',
+                  time: '',
+                  gender: false,
+                  phone: '',
+                },
+                formLabelWidth: '80px',
+                formTitle : "",
+                labelPosition : 'right',//dialog中每一行的对齐方式
             }
         },
         mounted(){
@@ -74,7 +158,7 @@
                     {
                         'id|+1' : 1,
                         "name" : "@cname",
-                        "phone" : Random.string(11),
+                        "phone" : ()=>Random.string(11),
                         "age|1-100" : 100,
                         "gender" : "@boolean",
                         "time" : "@date('yyyy-MM-dd')",
@@ -93,8 +177,10 @@
                 console.log("点击新增按钮");
                 console.log(this.dialogStatus.show);
                 console.log("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
+
+                this.form = {};
+                this.formTitle = "新增员工";
                 this.dialogStatus.show = true;
-                // console.log(this.dialogStatus.show);
             },
             cancelDialog(){
                 console.log("点击dialog取消");
@@ -107,17 +193,31 @@
                 console.log("点击dialog确定");
                 console.log(this.dialogStatus.show);
                 this.dialogStatus.show = false;
-              console.log(this.dialogStatus.show);
-              console.log("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
+                console.log(this.dialogStatus.show);
+                console.log("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
+                //如果当前表单属性中存在id说明是编辑
+                if('id' in this.form){
+                  console.log("dialog编辑数据");
+                  console.log(this.form);
+                }else{//否则是新增
+                  console.log("dialog新增数据");
+                  console.log(this.form);
+                }
             },
-            tableEdit(){
+            tableEdit(index,row){
               console.log("点击表格编辑");
               console.log("↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑");
-                this.dialogStatus.show = true;
+              console.log(index);
+              console.log(row);
+              this.formTitle = "编辑员工";
+              //先把当前行数据代入弹出层数据form中再打开
+              this.form = row;
+              this.dialogStatus.show = true;
+
             },
-            tableDelete(){
+            tableDelete(index,row){
               console.log("点击表格删除");
-                this.dialogStatus.show = true;
+              //this.dialogStatus.show = true;
             },
           //切换页码
           changeCurrentPage(page){
